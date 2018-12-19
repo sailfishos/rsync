@@ -28,6 +28,15 @@ Requires:   %{name} = %{version}-%{release}
 %description support
 Support files for rsync
 
+
+%package doc
+Summary:   Documentation for %{name}
+Group:     Documentation
+Requires: %{name} = %{version}-%{release}
+
+%description doc
+Man pages for %{name}.
+
 %prep
 %setup -q -n %{name}-%{version}/%{name}
 
@@ -47,13 +56,19 @@ cp rsyncd.conf.man rsyncd.conf.5
 mkdir -p %{buildroot}/etc/xinetd.d
 install -m 644 packaging/lsb/rsync.xinetd %{buildroot}/etc/xinetd.d/rsync
 
+mkdir -p %{buildroot}%{_docdir}/%{name}-%{version}/
+install -m0644 -t %{buildroot}%{_docdir}/%{name}-%{version}/ README
+
 %files
 %defattr(-,root,root,-)
-%doc COPYING README
+%license COPYING
 %config(noreplace) /etc/xinetd.d/rsync
 %{_prefix}/bin/rsync
-%doc %{_mandir}/man1/rsync.1*
-%doc %{_mandir}/man5/rsyncd.conf.5*
 
 %files support
 %defattr(-,root,root,-)
+
+%files doc
+%doc %{_docdir}/%{name}-%{version}
+%doc %{_mandir}/man1/rsync.1*
+%doc %{_mandir}/man5/rsyncd.conf.5*
