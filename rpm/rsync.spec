@@ -3,7 +3,7 @@ Summary:    A program for synchronizing files over a network
 Version:    3.1.3
 Release:    1
 License:    GPLv3+
-URL:        http://rsync.samba.org/
+URL:        https://github.com/sailfishos/rsync
 Source0:    %{name}-%{version}.tar.gz
 Obsoletes:  rsync-support
 BuildRequires:  pkgconfig(popt)
