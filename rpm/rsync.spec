@@ -1,14 +1,14 @@
 Name:       rsync
 Summary:    A program for synchronizing files over a network
-Version:    3.2.7
+Version:    3.4.0
 Release:    1
 License:    GPLv3+
 URL:        https://github.com/sailfishos/rsync
 Source0:    %{name}-%{version}.tar.gz
-Obsoletes:  rsync-support
 BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(popt)
 BuildRequires:  pkgconfig(libzstd)
+BuildRequires:  pkgconfig(liblz4)
 BuildRequires:  libacl-devel
 BuildRequires:  libattr-devel
 
@@ -27,7 +27,6 @@ package.
 %build
 
 %configure \
-  --disable-lz4 \
   --disable-md2man \
   --disable-xxhash
 
@@ -40,7 +39,6 @@ mkdir -p %{buildroot}/etc/xinetd.d
 install -m 644 packaging/lsb/rsync.xinetd %{buildroot}/etc/xinetd.d/rsync
 
 %files
-%defattr(-,root,root,-)
 %license COPYING
 %config(noreplace) /etc/xinetd.d/rsync
 %{_bindir}/rsync
