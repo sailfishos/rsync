@@ -1,6 +1,6 @@
 Name:       rsync
 Summary:    A program for synchronizing files over a network
-Version:    3.4.0
+Version:    3.4.1
 Release:    1
 License:    GPLv3+
 URL:        https://github.com/sailfishos/rsync
