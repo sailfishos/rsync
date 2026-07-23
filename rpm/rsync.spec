@@ -1,6 +1,6 @@
 Name:       rsync
 Summary:    A program for synchronizing files over a network
-Version:    3.4.1
+Version:    3.4.4
 Release:    1
 License:    GPLv3+
 URL:        https://github.com/sailfishos/rsync
@@ -9,6 +9,7 @@ BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(popt)
 BuildRequires:  pkgconfig(libzstd)
 BuildRequires:  pkgconfig(liblz4)
+BuildRequires:  pkgconfig(libxxhash)
 BuildRequires:  libacl-devel
 BuildRequires:  libattr-devel
 
@@ -25,11 +26,8 @@ package.
 %autosetup -n %{name}-%{version}/upstream
 
 %build
-
 %configure \
-  --disable-md2man \
-  --disable-xxhash
-
+  --disable-md2man
 %make_build
 
 %install
