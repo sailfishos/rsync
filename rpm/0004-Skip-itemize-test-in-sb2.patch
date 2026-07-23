@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Matti Viljanen <matti.viljanen@jolla.com>
+Date: Thu, 23 Jul 2026 21:34:32 +0300
+Subject: [PATCH] Skip itemize test in sb2
+
+This is a sb2 and/or old kernel headers issue, and the test passes
+on device, so it's safe to ignore for now.
+---
+ testsuite/itemize.test | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/testsuite/itemize.test b/testsuite/itemize.test
+index c1c57c59..ac0b47ba 100644
+--- a/testsuite/itemize.test
++++ b/testsuite/itemize.test
+@@ -10,6 +10,10 @@
+ 
+ . "$suitedir/rsync.fns"
+ 
++if $RSYNC -VV | grep '"hardlink_symlinks": false' >/dev/null; then
++    test_skipped "test fails in sb2"
++fi
++
+ to2dir="$tmpdir/to2"
+ 
+ makepath "$fromdir/foo"
