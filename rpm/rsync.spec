@@ -14,14 +14,17 @@ BuildRequires:  libacl-devel
 BuildRequires:  libattr-devel
 
 %ifarch %ix86
+# In OBS, tests only pass for i486.
 BuildRequires:  python3-base
+%endif
+
+# Patch the tests for all architectures for consistency.
 # Fix running chmod-symlink-race test with kernel 4.4 headers
 Patch1:         0001-t_chmod_secure-probe-kernel-RESOLVE_BENEATH-at-runti.patch
 Patch2:         0002-t_chmod_secure-use-HAVE_OPENAT2-to-check-for-openat2.patch
 Patch3:         0003-android-probe-openat2-usability-behind-a-SIGSYS-hand.patch
 # This test passes in OBS, but breaks in Platform SDK, optionally skip it.
 Patch4:         0004-Skip-itemize-test-in-sb2.patch
-%endif
 
 %description
 Rsync uses a reliable algorithm to bring remote and host files into
