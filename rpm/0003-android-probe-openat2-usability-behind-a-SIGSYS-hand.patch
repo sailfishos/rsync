@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Andrew Tridgell <andrew@tridgell.net>
+Date: Thu, 4 Jun 2026 09:14:52 +1000
+Subject: [PATCH] android: probe openat2 usability behind a SIGSYS handler
+
+Android's seccomp sandbox traps openat2() with SECCOMP_RET_TRAP, which
+raises SIGSYS and kills the process instead of returning ENOSYS, so the
+secure resolver cannot simply try openat2() and inspect errno.  Add
+openat2_usable() in a new android.c: it probes openat2() once behind a
+temporary SIGSYS handler and caches the result.
+
+Gate every SYS_openat2 call on openat2_usable(): in the resolver via an
+openat2_beneath() wrapper, and in t_chmod_secure's kernel probe directly,
+so a blocked openat2 reports ENOSYS and the caller falls back to the
+portable O_NOFOLLOW resolver.  Only openat2 is gated -- a plain openat()
+(e.g. opening an operator-trusted absolute basedir) is left free.
+
+The probe body compiles only on Android -- __ANDROID__ is a Bionic target
+macro, so it is set for NDK cross-builds and native Termux alike and unset
+everywhere else, where openat2_usable() collapses to a constant 1.  Link
+android.o into the secure-resolver test helpers too so their self-tests
+survive on Termux.
+
+Adapted from PR #909.
+---
+ t_chmod_secure.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/t_chmod_secure.c b/t_chmod_secure.c
+index 130c7419..b99655a4 100644
+--- a/t_chmod_secure.c
++++ b/t_chmod_secure.c
+@@ -44,9 +44,11 @@ static int errs = 0;
+  * other than the kernel rejecting the requested confinement flag. */
+ static int kernel_resolve_beneath_supported(void)
+ {
++#if (defined(__linux__) && defined(HAVE_OPENAT2)) || defined(O_RESOLVE_BENEATH)
+ 	int fd;
++#endif
+ #if defined(__linux__) && defined(HAVE_OPENAT2)
+-	{
++	if (openat2_usable()) {
+ 		struct open_how how;
+ 		memset(&how, 0, sizeof how);
+ 		how.flags = O_RDONLY | O_DIRECTORY;
+@@ -56,7 +58,7 @@ static int kernel_resolve_beneath_supported(void)
+ 			close(fd);
+ 			return 1;
+ 		}
+-		/* ENOSYS = kernel < 5.6.  Fall through to the O_RESOLVE_BENEATH
++		/* ENOSYS = kernel < 5.6 or openat2 seccomp-blocked.  Fall through to the O_RESOLVE_BENEATH
+ 		 * probe in case we're a Linux build running on a kernel that
+ 		 * gained O_RESOLVE_BENEATH via some out-of-tree backport. */
+ 	}
